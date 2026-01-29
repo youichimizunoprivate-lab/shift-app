@@ -2221,7 +2221,7 @@ def page_save_load():
         st.caption("現在の設定データをファイルとしてダウンロードします。")
         
         # File name input
-        default_name = f"shift_data_{datetime.date.today().strftime('%Y%m%d')}"
+        default_name = f"{datetime.date.today().strftime('%Y%m%d')}"
         save_name = st.text_input("保存ファイル名", value=default_name, key="sl_save_name")
         
         # Prepare filename
@@ -2237,7 +2237,7 @@ def page_save_load():
             st.caption(f"データサイズ: {len(json_str)} bytes")
             
             st.download_button(
-                label="設定データをダウンロード (.json)",
+                label="名前を付けて保存",
                 data=json_str,
                 file_name=fname,
                 mime="application/json",
