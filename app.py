@@ -2278,8 +2278,8 @@ def page_save_load():
                  visibility: visible;
                  display: block;
                  position: absolute;
-                 top: 50%;
-                 left: 50%;
+                 top: 60%;
+                 left: 42%;
                  transform: translate(-50%, -50%);
                  font-weight: bold;
              }
