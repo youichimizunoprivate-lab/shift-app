@@ -2277,7 +2277,10 @@ def page_save_load():
                  content: "ファイルを選択";
                  visibility: visible;
                  display: block;
-                 margin-top: -20px; /* Pull it back up */
+                 position: absolute;
+                 top: 50%;
+                 left: 50%;
+                 transform: translate(-50%, -50%);
                  font-weight: bold;
              }
              
