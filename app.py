@@ -2213,93 +2213,58 @@ def render_reorder_list_direct(items: list, labels: list, key_prefix: str, targe
 def page_save_load():
     st.header("設定の保存・読み込み")
 
-    # --- Overwrite Save Section ---
-    current_file = st.session_state.get("current_loaded_file")
-    with st.container(border=True):
-        st.markdown('<div class="card-title">💾 上書き保存</div>', unsafe_allow_html=True)
-        if current_file:
-            st.caption(f"現在読み込んでいるファイル: **{current_file}** に上書きします。")
-            if st.button("上書き保存", key="sl_overwrite_btn", type="primary", use_container_width=True):
-                path = os.path.join(USER_DATA_DIR, current_file)
-                try:
-                    with open(path, "w", encoding="utf-8") as f:
-                        f.write(create_save_json())
-                    st.success(f"「{current_file}」を上書き保存しました。")
-                    time.sleep(1)
-                except Exception as e:
-                    st.error(f"保存失敗: {e}")
-        else:
-            st.info("現在読み込まれているファイルがありません。まずはファイルを開くか、名前をつけて保存してください。")
-            st.button("上書き保存", key="sl_overwrite_btn_disabled", disabled=True, use_container_width=True)
+    st.info("※ Web版では、データはお客様のPC内に保存されます。作業が終わったら必ず「保存（ダウンロード）」してください。")
 
-    # --- Save As Section ---
+    # --- Save Section ---
     with st.container(border=True):
-        st.markdown('<div class="card-title">🆕 名前をつけて保存</div>', unsafe_allow_html=True)
-        st.caption("現在の設定状態を、新しい名前で保存します。")
+        st.markdown('<div class="card-title">💾 保存（ダウンロード）</div>', unsafe_allow_html=True)
+        st.caption("現在の設定データをファイルとしてダウンロードします。")
         
-        c_input, c_btn = st.columns([3, 1])
-        default_name = f"backup_{datetime.date.today().strftime('%Y%m%d')}"
-        save_name = c_input.text_input("保存名 (拡張子不要)", value=default_name, key="sl_save_name")
+        # File name input
+        default_name = f"shift_data_{datetime.date.today().strftime('%Y%m%d')}"
+        save_name = st.text_input("保存ファイル名", value=default_name, key="sl_save_name")
         
-        c_btn.markdown('<div style="margin-top: 28px;"></div>', unsafe_allow_html=True)
-        if c_btn.button("保存", key="sl_save_btn", use_container_width=True):
-            if save_name.strip():
-                fname = save_name.strip()
-                if not fname.endswith(".json"):
-                    fname += ".json"
-                path = os.path.join(USER_DATA_DIR, fname)
-                try:
-                    with open(path, "w", encoding="utf-8") as f:
-                        f.write(create_save_json())
-                    st.session_state["current_loaded_file"] = fname  # Update current file
-                    st.success(f"「{fname}」として保存しました。")
-                    time.sleep(1)
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"保存失敗: {e}")
-            else:
-                st.error("保存名を入力してください。")
+        # Prepare filename
+        fname = save_name.strip()
+        if not fname:
+            fname = "shift_data"
+        if not fname.endswith(".json"):
+            fname += ".json"
+            
+        # Create JSON
+        try:
+            json_str = create_save_json()
+            st.caption(f"データサイズ: {len(json_str)} bytes")
+            
+            st.download_button(
+                label="設定データをダウンロード (.json)",
+                data=json_str,
+                file_name=fname,
+                mime="application/json",
+                type="primary",
+                use_container_width=True,
+                key="sl_dl_btn_main"
+            )
+        except Exception as e:
+            st.error(f"データ作成エラー: {e}")
+
+        # Fallback for download failure
+        with st.expander("⚠️ ダウンロードできない場合（コピー＆ペースト）"):
+            st.caption("下のテキストをすべてコピーして、PCのメモ帳などに貼り付けて保存してください。")
+            st.text_area("データ（全選択してコピー）", value=json_str, height=100, label_visibility="collapsed")
 
     # --- Load Section ---
     with st.container(border=True):
         st.markdown('<div class="card-title">📂 読み込み</div>', unsafe_allow_html=True)
-        st.caption("保存済みの設定データを読み込みます。")
+        st.caption("以前保存したファイル（.json）を読み込んで状態を復元します。")
 
-        # List JSON files
-        files = [f for f in os.listdir(USER_DATA_DIR) if f.endswith(".json")]
-        files.sort(reverse=True) # Newest first usually (by name at least)
-
-        if not files:
-            st.info("保存されたデータがありません。")
-        else:
-            c_sel, c_load, c_del = st.columns([3, 1, 1])
-            selected_file = c_sel.selectbox("ファイル選択", files, key="sl_load_sel", label_visibility="collapsed")
-            
-            if c_load.button("読み込み", key="sl_load_btn", use_container_width=True):
-                path = os.path.join(USER_DATA_DIR, selected_file)
+        uploaded_file = st.file_uploader("ファイルを選択", type=["json"], key="sl_uploader", label_visibility="collapsed")
+        
+        if uploaded_file is not None:
+            if st.button("読み込み適用", type="primary", use_container_width=True):
                 try:
-                    with open(path, "r", encoding="utf-8") as f:
-                        data = json.load(f)
+                    data = json.load(uploaded_file)
                     load_state_from_dict(data)
-                    st.session_state["current_loaded_file"] = selected_file  # Update current file
-                    st.success(f"「{selected_file}」を読み込みました。")
-                    time.sleep(1)
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"読み込み失敗: {e}")
-
-            if c_del.button("削除", key="sl_del_btn", type="primary", use_container_width=True):
-                path = os.path.join(USER_DATA_DIR, selected_file)
-                try:
-                    os.remove(path)
-                    # 現在ログイン中のデータを削除した場合はログアウトして自動保存の再生成を防ぐ
-                    current_user = st.session_state.get("current_user", "")
-                    if current_user and selected_file == f"{current_user}.json":
-                        st.session_state["skip_autosave"] = True
-                        st.success(f"「{selected_file}」を削除しました。ログアウトします。")
-                        time.sleep(1)
-                        st.session_state.pop("current_user", None)
-                        st.session_state.pop("data_loaded", None)
                         st.session_state["page"] = "home"
                         st.rerun()
                     else:
@@ -4620,43 +4585,7 @@ def main():
 
     ensure_core_defaults()
 
-    with st.sidebar:
-        st.divider()
-        st.subheader("💾 データ保存")
-        # st.caption("作業内容はブラウザを閉じると消えます。こまめにダウンロードしてください。")
-        st.write("---")
-        try:
-            json_str = create_save_json()
-            st.caption(f"データサイズ: {len(json_str)} bytes")
-            
-            # Safe filename generation
-            safe_name = "shift_data.json"
-            
-            st.download_button(
-                label="設定データをダウンロード (.json)",
-                data=json_str,
-                file_name=safe_name,
-                mime="application/json",
-                type="primary",
-                use_container_width=True,
-                key="dl_btn_sidebar"
-            )
-        except Exception as e:
-            st.error(f"データ作成エラー: {e}")
 
-        # Debug button
-        st.download_button(
-            label="[テスト] 文字列のみダウンロード",
-            data="Test file content",
-            file_name="test.txt",
-            mime="text/plain",
-            key="test_dl_btn"
-        )
-        
-        # Fallback for download failure
-        with st.expander("⚠️ ダウンロードできない場合"):
-            st.caption("下のテキストをすべてコピーして、PCのメモ帳などに貼り付けて `shift_data.json` という名前で保存してください。")
-            st.text_area("データ（全選択してコピー）", value=json_str, height=100, label_visibility="collapsed")
 
     start = st.session_state.get("start_date", datetime.date.today())
     end = st.session_state.get("end_date", datetime.date.today() + datetime.timedelta(days=30))
