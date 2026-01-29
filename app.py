@@ -2265,18 +2265,12 @@ def page_save_load():
                 try:
                     data = json.load(uploaded_file)
                     load_state_from_dict(data)
-                        st.session_state["page"] = "home"
-                        st.rerun()
-                    else:
-                        # 念のため削除結果を確認
-                        if os.path.exists(path):
-                            st.error(f"削除に失敗しました（{selected_file} が残っています）。")
-                            return
-                        st.success(f"「{selected_file}」を削除しました。")
-                        time.sleep(1)
-                        st.rerun()
+                    st.session_state["data_loaded"] = True
+                    st.success("データを読み込みました！")
+                    time.sleep(1)
+                    st.rerun()
                 except Exception as e:
-                    st.error(f"削除失敗: {e}")
+                    st.error(f"読み込みエラー: {e}")
 
 
 # =========================================================
