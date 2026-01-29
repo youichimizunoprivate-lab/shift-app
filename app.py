@@ -2274,7 +2274,7 @@ def page_save_load():
                  visibility: hidden;
             }
              [data-testid="stFileUploaderDropzoneInstructions"] > div::after {
-                 content: "ここにファイルをドラッグ＆ドロップ";
+                 content: "ファイルを選択";
                  visibility: visible;
                  display: block;
                  margin-top: -20px; /* Pull it back up */
@@ -2288,7 +2288,7 @@ def page_save_load():
                 width: 150px; /* Adjust width as needed */
             }
             [data-testid="stFileUploader"] button::after {
-                content: "ファイルを選択";
+                content: "読み込む";
                 color: #31333F; 
                 position: absolute;
                 left: 50%;
