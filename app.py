@@ -4652,6 +4652,11 @@ def main():
             mime="text/plain",
             key="test_dl_btn"
         )
+        
+        # Fallback for download failure
+        with st.expander("⚠️ ダウンロードできない場合"):
+            st.caption("下のテキストをすべてコピーして、PCのメモ帳などに貼り付けて `shift_data.json` という名前で保存してください。")
+            st.text_area("データ（全選択してコピー）", value=json_str, height=100, label_visibility="collapsed")
 
     start = st.session_state.get("start_date", datetime.date.today())
     end = st.session_state.get("end_date", datetime.date.today() + datetime.timedelta(days=30))
