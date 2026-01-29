@@ -2248,17 +2248,49 @@ def page_save_load():
         except Exception as e:
             st.error(f"データ作成エラー: {e}")
 
-        # Fallback for download failure
-        with st.expander("⚠️ ダウンロードできない場合（コピー＆ペースト）"):
-            st.caption("下のテキストをすべてコピーして、PCのメモ帳などに貼り付けて保存してください。")
-            st.text_area("データ（全選択してコピー）", value=json_str, height=100, label_visibility="collapsed")
+        # Fallback removed as per user request
 
     # --- Load Section ---
     with st.container(border=True):
         st.markdown('<div class="card-title">📂 読み込み</div>', unsafe_allow_html=True)
         st.caption("以前保存したファイル（.json）を読み込んで状態を復元します。")
 
-        uploaded_file = st.file_uploader("ファイルを選択", type=["json"], key="sl_uploader", label_visibility="collapsed")
+        # Custom CSS to translate File Uploader text
+        st.markdown(
+            """
+            <style>
+            /* Hide the default "Limit 200MB per file • JSON" text */
+            [data-testid="stFileUploader"] small {
+                display: none;
+            }
+            /* Change "Browse files" button text via pseudo-element hack */
+            [data-testid="stFileUploader"] button {
+                color: transparent !important;
+                position: relative;
+                width: 120px; /* Adjust width as needed */
+            }
+            [data-testid="stFileUploader"] button::after {
+                content: "ファイルを選択";
+                color: #31333F; /* Default text color */
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            /* Dark mode adjustment (optional, basic heuristic) */
+            @media (prefers-color-scheme: dark) {
+                [data-testid="stFileUploader"] button::after {
+                    color: white;
+                }
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+        uploaded_file = st.file_uploader("読み込みファイル", type=["json"], key="sl_uploader")
         
         if uploaded_file is not None:
             if st.button("読み込み適用", type="primary", use_container_width=True):
