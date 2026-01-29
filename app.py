@@ -4624,14 +4624,24 @@ def main():
         st.divider()
         st.subheader("💾 データ保存")
         # st.caption("作業内容はブラウザを閉じると消えます。こまめにダウンロードしてください。")
+        if st.button("データ作成（ダウンロード準備）", key="prepare_dl"):
+             st.success("データを作成しました。下のボタンからダウンロードしてください。")
+
+        # Create JSON on demand or every run (safer to do every run if fast enough, but let's try fixed name)
         json_str = create_save_json()
+        
+        # Safe filename generation
+        import urllib.parse
+        safe_name = "shift_data.json"
+        
         st.download_button(
             label="設定データをダウンロード (.json)",
             data=json_str,
-            file_name=f"shift_data_{st.session_state.get('current_user', 'project')}.json",
+            file_name=safe_name,
             mime="application/json",
             type="primary",
-            use_container_width=True
+            use_container_width=True,
+            key="dl_btn_sidebar"
         )
 
     start = st.session_state.get("start_date", datetime.date.today())
