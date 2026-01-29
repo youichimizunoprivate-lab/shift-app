@@ -1,0 +1,6 @@
+.venv/
+.shift_app_venv/
+user_data/
+__pycache__/
+*.pyc
+.DS_Store
