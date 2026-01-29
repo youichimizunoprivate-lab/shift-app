@@ -2130,6 +2130,61 @@ def render_login():
     with st.container(border=True):
         st.title("シフト自動生成アプリ")
         
+        # Custom CSS for File Uploader (Same as page_save_load)
+        st.markdown(
+            """
+            <style>
+            /* Hide "Limit 200MB per file • JSON" */
+            [data-testid="stFileUploader"] section > div > span {
+                display: none !important;
+            }
+            [data-testid="stFileUploader"] small {
+                display: none !important;
+            }
+            /* Hide "Drag and drop file here" */
+            [data-testid="stFileUploaderDropzoneInstructions"] > div {
+                 visibility: hidden;
+            }
+             [data-testid="stFileUploaderDropzoneInstructions"] > div::after {
+                 content: "ファイルを選択";
+                 visibility: visible;
+                 display: block;
+                 position: absolute;
+                 top: 60%;
+                 left: 42%;
+                 transform: translate(-50%, -50%);
+                 font-weight: bold;
+             }
+             
+            /* Button "Browse files" replacement */
+            [data-testid="stFileUploader"] button {
+                color: transparent !important;
+                position: relative;
+                width: 150px; /* Adjust width as needed */
+            }
+            [data-testid="stFileUploader"] button::after {
+                content: "読み込む";
+                color: #31333F; 
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 14px;
+                white-space: nowrap;
+                font-weight: normal;
+            }
+            
+            /* Dark mode adjustment */
+            @media (prefers-color-scheme: dark) {
+                [data-testid="stFileUploader"] button::after {
+                    color: white;
+                }
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
         tab1, tab2 = st.tabs(["📂 データ読み込み", "✨ 新規作成"])
         
         with tab1:
