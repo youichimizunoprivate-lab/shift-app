@@ -2259,27 +2259,47 @@ def page_save_load():
         st.markdown(
             """
             <style>
-            /* Hide the default "Limit 200MB per file • JSON" text */
-            [data-testid="stFileUploader"] small {
-                display: none;
+            /* Hide "Limit 200MB per file • JSON" */
+            [data-testid="stFileUploader"] section > div > span {
+                display: none !important;
             }
-            /* Change "Browse files" button text via pseudo-element hack */
+            [data-testid="stFileUploader"] small {
+                display: none !important;
+            }
+            /* Hide "Drag and drop file here" - this is tricky as it's often a direct text node or in a div without clear class */
+            /* We try to mask it by making the container transparent or covering it */
+            
+            /* Target the specific instructions area */
+            [data-testid="stFileUploaderDropzoneInstructions"] > div {
+                 visibility: hidden;
+            }
+             [data-testid="stFileUploaderDropzoneInstructions"] > div::after {
+                 content: "ここにファイルをドラッグ＆ドロップ";
+                 visibility: visible;
+                 display: block;
+                 margin-top: -20px; /* Pull it back up */
+                 font-weight: bold;
+             }
+             
+            /* Button "Browse files" replacement */
             [data-testid="stFileUploader"] button {
                 color: transparent !important;
                 position: relative;
-                width: 120px; /* Adjust width as needed */
+                width: 150px; /* Adjust width as needed */
             }
             [data-testid="stFileUploader"] button::after {
                 content: "ファイルを選択";
-                color: #31333F; /* Default text color */
+                color: #31333F; 
                 position: absolute;
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
                 font-size: 14px;
                 white-space: nowrap;
+                font-weight: normal;
             }
-            /* Dark mode adjustment (optional, basic heuristic) */
+            
+            /* Dark mode adjustment */
             @media (prefers-color-scheme: dark) {
                 [data-testid="stFileUploader"] button::after {
                     color: white;
