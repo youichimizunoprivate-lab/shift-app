@@ -2213,7 +2213,7 @@ def render_reorder_list_direct(items: list, labels: list, key_prefix: str, targe
 def page_save_load():
     st.header("設定の保存・読み込み")
 
-    st.info("※ Web版では、データはお使いの端末（PC・スマホ）内に保存されます。作業が終わったら必ず「保存（ダウンロード）」してください。")
+    st.info("データはお使いの端末（PC・スマホ）内に保存されます。作業が終わったら必ず「保存（ダウンロード）」してください。")
 
     # --- Save Section ---
     with st.container(border=True):
